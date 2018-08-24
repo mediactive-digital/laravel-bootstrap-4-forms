@@ -1,5 +1,5 @@
 {
-	"name": "netojose/laravel-bootstrap-4-forms",
+	"name": "mediactive-digital/laravel-bootstrap-4-forms",
 	"type": "package",
 	"description": "Bootstrap 4 form builder for Laravel 5",
 	"keywords": [
@@ -13,10 +13,9 @@
 	],
 	"license": "MIT",
 	"authors": [{
-		"name": "José Sousa",
-		"email": "sputinykster@gmail.com"
+		"name": "Mediactive Digital"
 	}],
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"minimum-stability": "dev",
 	"require": {},
 	"autoload": {

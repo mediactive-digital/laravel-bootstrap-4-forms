@@ -28,14 +28,23 @@ class FormService {
      *
      * @var array
      */
-    private $_allowedRenders = ['open', 'close', 'file', 'text','password', 'email', 'number', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset'];
+    private $_allowedRenders = ['open', 'close', 'file', 'text', 'password', 'email', 'number', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset', 'fieldsetOpen', 'fieldsetClose'];
+
+    /**
+     * Allowed renders for indexing
+     *
+     * @var array
+     */
+    private $_allowedIndexRenders = ['file', 'text', 'password', 'email', 'number', 'hidden', 'checkbox', 'textarea'];
 
     /**
      * Create a new FormSevice instance
      */
-    public function __construct()
-    {
+    public function __construct() {
+
         $this->_builder = new FormBuilder;
+        $this->_builder->set('Fold', old());
+        $this->_builder->set('Ferrors', ($errors = session('errors')) ? $errors->toArray() : null);
     }
 
     /**
@@ -43,11 +52,29 @@ class FormService {
      *
      * @return string
      */
-    public function __toString()
-    {
+    public function __toString() {
+
         $output = '';
 
         if (in_array($this->_render, $this->_allowedRenders)) {
+
+            if (in_array($this->_render, $this->_allowedIndexRenders)) {
+
+                $name = $this->_builder->get('name');
+
+                if (strlen($name) > 2 && substr($name, -2) === '[]') {
+
+                    $name = rtrim($name, '[]');
+                    $Findexes = $this->_builder->get('Findexes');
+                    $index = isset($Findexes[$name]['index']) ? $Findexes[$name]['index'] + 1 : 0;
+                    $Findexes[$name]['index'] = $index;
+
+                    $this->_builder->set('name', $name . '[' . $index . ']');
+                    $this->_builder->set('Findexes', $Findexes);
+                    $this->_builder->set('arrayName', $name);
+                    $this->_builder->set('index', $index);
+                }
+            }
 
             $output = $this->_builder->{$this->_render}();
         }
@@ -165,15 +192,11 @@ class FormService {
      *
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function fill($data): FormService
-    {
+    public function fill($data): FormService {
 
         if (method_exists($data, 'toArray')) {
-            $data = $data->toArray();
-        }
 
-        if (!is_array($data)) {
-            $data = [];
+            $data = $data->toArray();
         }
 
         return $this->_set('Fdata', $data);
@@ -227,20 +250,37 @@ class FormService {
      * Open a fieldset
      *
      * @param string $legend
+     * @param string $name
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function fieldsetOpen(string $legend = null): FormService
-    {
-        return $this->_set('meta', ['legend' => $legend])->render('fieldsetOpen');
+    public function fieldsetOpen(string $legend = null, string $name = null): FormService {
+
+        if ($legend) {
+
+            $this->_set('meta', ['legend' => $legend]);
+
+            if ($name) {
+
+                $this->_set('name', $name);
+            }
+        }
+
+        return $this->render('fieldsetOpen');
     }
 
     /**
      * Close a fieldset
      *
+     * @param string $name
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function fieldsetClose(): FormService
-    {
+    public function fieldsetClose(string $name = null): FormService {
+
+        if ($name) {
+
+            $this->_set('name', $name);
+        }
+
         return $this->render('fieldsetClose');
     }
 
@@ -672,6 +712,17 @@ class FormService {
     }
 
     /**
+     * Set the input required status
+     *
+     * @param type $status
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function required($status = true) : FormService
+    {
+        return $this->_set('required', $status);
+    }
+
+    /**
      * Set the input placeholder
      *
      * @param type $placeholder
@@ -738,5 +789,4 @@ class FormService {
 
         return $this->_set('meta', ['value' => $inputValue])->type($type)->name($name)->label($label)->value($default);
     }
-
 }

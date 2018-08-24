@@ -40,7 +40,7 @@ Form::text('username', 'Username')
 #### Require the package using Composer.
 
 ```bash
-composer require netojose/laravel-bootstrap-4-forms
+composer require mediactive-digital/laravel-bootstrap-4-forms
 ```
 
 ### Laravel 5.5 or above
@@ -88,12 +88,39 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 | Param   | Type   | Default | Description     |
 | ------- | ------ | ------- | --------------- |
 | $legend | string | null    | Fieldset Legend |
+| $name   | string | null    | Fieldset Error  |
 
 ```php
-// Example
+// Examples
+
+// Open fieldset
+{!!Form::fieldsetOpen()!!}
+
+// Open fieldset with legend
 {!!Form::fieldsetOpen('Legend title')!!}
-// ... fieldset content
+
+// Open fieldset with error display by field name
+{!!Form::fieldsetOpen('Legend title', 'field_name')!!}
+
+// Open fieldset with help text
+{!!Form::fieldsetOpen('Legend title')->help('Help')!!}
+
+// Open fieldset with error display by field name and help text
+{!!Form::fieldsetOpen('Legend title', 'field_name')->help('Help')!!}
+
+// ... Fieldset content
+
+// Close fieldset
 {!!Form::fieldsetClose()!!}
+
+// Close fieldset with error display by field name
+{!!Form::fieldsetClose('field_name')!!}
+
+// Close fieldset with help text
+{!!Form::fieldsetClose()->help('Help')!!}
+
+// Close fieldset with error display by field name and help text
+{!!Form::fieldsetClose('field_name')->help('Help')!!}
 ```
 
 ### Basic inputs
@@ -380,6 +407,25 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 {!!Form::text('name', 'Name')->disabled(false)!!}
 ```
 
+### Required
+
+| Param   | Type    | Default | Description     |
+| ------- | ------- | ------- | --------------- |
+| $status | boolean | true    | Required status |
+
+```php
+// Examples
+
+// Make a field required
+{!!Form::text('name', 'Name')->required()!!}
+
+ // Make a fieldset required
+{!!Form::fieldsetOpen('User data')->required()!!}
+
+ // You can use FALSE to turn off required status
+{!!Form::text('name', 'Name')->required(false)!!}
+```
+
 ### Block
 
 | Param   | Type    | Default | Description     |
@@ -389,7 +435,7 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 ```php
 // Examples
 
-// Disabling a field
+// Set block style on a field
 {!!Form::text('name', 'Name')->block()!!}
 
 // You can use FALSE to turn off block status

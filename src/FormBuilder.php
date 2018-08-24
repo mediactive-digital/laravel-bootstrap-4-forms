@@ -34,9 +34,31 @@ class FormBuilder {
 
     /**
      * Inputs id prefix
+     *
      * @var string
      */
     private $_FidPrefix;
+
+    /**
+     * Form elements arrays indexes
+     *
+     * @var array
+     */
+    private $_Findexes = [];
+
+    /**
+     * Form old data
+     *
+     * @var bool
+     */
+    private $_Fold = false;
+
+    /**
+     * Form errors
+     *
+     * @var mixed
+     */
+    private $_Ferrors = null;
 
     /**
      * Input meta data
@@ -100,6 +122,13 @@ class FormBuilder {
      * @var boolean
      */
     private $_disabled;
+
+    /**
+     * Required flag
+     *
+     * @var boolean
+     */
+    private $_required;
 
     /**
      * Input id
@@ -170,6 +199,20 @@ class FormBuilder {
      * @var boolean
      */
     private $_multiple;
+
+    /**
+     * Element array name
+     *
+     * @var mixed
+     */
+    private $_arrayName;
+
+    /**
+     * Element array index
+     *
+     * @var int
+     */
+    private $_index;
 
     public function __construct()
     {
@@ -250,15 +293,22 @@ class FormBuilder {
     /**
      * Return a open fieldset tag
      *
-     * @return string
+     * @return string $ret
      */
-    public function fieldsetOpen(): string
-    {
-        $attrs = $this->_buildAttrs();
-        $ret = '<fieldset' . ($attrs ? (' ' . $attrs) : '') . '>';
+    public function fieldsetOpen(): string {
 
-        if ($this->_meta['legend']) {
-            $ret .= '<legend>' . $this->_e($this->_meta['legend']) . '</legend>';
+        $attrs = $this->_buildAttrs(['class' => 'form-group']);
+        $ret = '<fieldset' . ($attrs ? (' ' . $attrs) : '') . '>';
+        $help = $this->_getHelpText();
+        $error = $this->_getValidationFieldMessage('<div class="invalid-feedback d-block">');
+
+        if (isset($this->_meta['legend'])) {
+
+            $ret .= '<legend>' . $this->_e($this->_meta['legend']) . $help . $error . '</legend>';
+        }
+        else {
+
+            $ret .= $help . $error;
         }
 
         $this->_resetFlags();
@@ -269,13 +319,15 @@ class FormBuilder {
     /**
      * Return a close fieldset tag
      *
-     * @return string
+     * @return string $ret
      */
-    public function fieldsetClose(): string
-    {
+    public function fieldsetClose(): string {
+
+        $ret = $this->_getHelpText() . $this->_getValidationFieldMessage('<div class="invalid-feedback d-block">') . '</fieldset>';
+
         $this->_resetFlags();
 
-        return '</fieldset>';
+        return $ret;
     }
 
     /**
@@ -377,7 +429,7 @@ class FormBuilder {
 
             foreach ($this->_options as $key => $label) {
 
-                if (array_key_exists($key, $value)) {
+                if (in_array($key, $value)) {
                     $match = true;
                 } else {
                     $match = false;
@@ -508,7 +560,7 @@ class FormBuilder {
     /**
      * Return a label tag
      *
-     * @return string
+     * @return string $result
      */
     private function _getLabel(): string
     {
@@ -560,7 +612,9 @@ class FormBuilder {
         if ($this->_size) {
             $props['class'] .= ' form-control-' . $this->_size;
         }
-        $props['class'] .= ' ' . $this->_getValidationFieldClass();
+
+        $validationFieldClass = $this->_getValidationFieldClass();
+        $props['class'] .= $validationFieldClass ? ' ' . $validationFieldClass : '';
 
         if (isset($this->_attrs['class'])) {
             $props['class'] .= ' ' . $this->_attrs['class'];
@@ -584,15 +638,14 @@ class FormBuilder {
             $ret .= 'disabled ';
         }
 
+        if ($this->_required) {
+            $ret .= 'required ';
+        }
+
         if (in_array($this->_type, ['radio', 'checkbox'])) {
+
             $value = $this->_getValue();
-            if (
-                    $value && (
-                    $this->_type === 'checkbox' || $this->_type === 'radio' && $value === $this->_meta['value']
-                    )
-            ) {
-                $ret .= 'checked ';
-            }
+            $ret .= ($this->_type == 'checkbox' && is_array($value) ? in_array($this->_meta['value'], $value) : $value === $this->_meta['value']) ? 'checked ' : '';
         }
 
         if ($this->_type == 'hidden') {
@@ -614,33 +667,77 @@ class FormBuilder {
     /**
      * Return a input value
      *
-     * @return mixed
+     * @return mixed $value
      */
-    private function _getValue()
-    {
-        $name = $this->_name;
+    private function _getValue() {
 
-        if ($this->_hasOldInput()) {
-            return old($name);
+        if ($this->_Fold) {
+
+            $value = $this->_getOldValue();
+        }
+        elseif ($this->_value !== null) {
+
+            $value = $this->_value;
+        }
+        else {
+
+            $value = $this->_getFdataValue();
         }
 
-        if ($this->_value !== null) {
-            return $this->_value;
-        }
-
-        if (isset($this->_Fdata[$name])) {
-            return $this->_Fdata[$name];
-        }
+        return $value;
     }
 
     /**
-     * Check if has a old request
+     * Return old value
      *
-     * @return boolean
+     * @return mixed $value
      */
-    private function _hasOldInput()
-    {
-        return count((array) old()) != 0;
+    private function _getOldValue() {
+
+        $hasIndex = $this->_index !== null;
+        $name = $hasIndex ? $this->_arrayName : $this->_name;
+        $old = isset($this->_Fold[$name]) ? $this->_Fold[$name] : null;
+
+        return $hasIndex ? (isset($old[$this->_index]) ? $old[$this->_index] : null) : $old;
+    }
+
+    /**
+     * Return true value for Fdata (models array flattening)
+     *
+     * @return mixed $value
+     */
+    private function _getFdataValue() {
+
+        $value = null;
+        $hasIndex = $this->_index !== null;
+        $name = $hasIndex ? $this->_arrayName : $this->_name;
+
+        if (isset($this->_Findexes[$name]['value'])) {
+
+            $value = $this->_Findexes[$name]['value'];
+        }
+        elseif (isset($this->_Fdata[$name])) {
+
+            $value = $this->_Fdata[$name];
+
+            if (is_array($value)) {
+
+                $currentValue = current($value);
+                $value = is_array($currentValue) && array_key_exists('id', $currentValue) ? array_column($value, 'id') : $value;
+
+                if ($hasIndex && $this->_type != 'checkbox') {
+
+                    $value = isset($value[$this->_index]) ? $value[$this->_index] : null;
+                }
+            }
+
+            if ($hasIndex) {
+
+                $this->_Findexes[$name]['value'] = $value;
+            }
+        }
+
+        return $value;
     }
 
     /**
@@ -681,13 +778,20 @@ class FormBuilder {
     /**
      * Return a help text
      *
-     * @return string
+     * @return string $help
      */
-    private function _getHelpText(): string
-    {
-        $id = $this->_getIdHelp();
+    private function _getHelpText(): string {
 
-        return $this->_help ? '<small id="' . $id . '" class="form-text text-muted">' . $this->_e($this->_help) . '</small>' : '';
+        $help = '';
+
+        if ($this->_help) {
+
+            $id = $this->_getIdHelp();
+            $id = $id ? ' id="' . $id . '"' : '';
+            $help = '<small' . $id . ' class="form-text text-muted">' . $this->_e($this->_help) . '</small>';
+        }
+
+        return $help;
     }
 
     /**
@@ -704,21 +808,24 @@ class FormBuilder {
         return $this->_Flocale ? __($this->_Flocale . '.' . $fieldKey) : $fieldKey;
     }
 
-    private function _getValidationFieldClass(): string
-    {
-        if (!$this->_name) {
-            return '';
-        }
+    /**
+     * Return validation field class
+     *
+     * @return string
+     */
+    private function _getValidationFieldClass(): string {
 
-        if (session('errors') === null) {
+        if (!$this->_name || !$this->_Ferrors) {
+
             return '';
         }
 
         if ($this->_getValidationFieldMessage()) {
-            return ' is-invalid';
+
+            return 'is-invalid';
         }
 
-        return ' is-valid';
+        return 'is-valid';
     }
 
     /**
@@ -734,7 +841,7 @@ class FormBuilder {
 
         $this->_resetFlags();
 
-        return '<div class="form-check' . $inline . '"><label class="form-check-label"><input ' . $attrs . '>' . $label . '</label></div>';
+        return '<div class="form-check' . $inline . '"><input ' . $attrs . '><label class="form-check-label">' . $label . '</label></div>';
     }
 
     /**
@@ -759,18 +866,37 @@ class FormBuilder {
      *
      * @param string $prefix
      * @param string $sufix
-     * @return string|mull
+     * @return string
      */
-    private function _getValidationFieldMessage(string $prefix = '<div class="invalid-feedback">', string $sufix = '</div>')
-    {
-        $errors = session('errors');
-        if (!$errors) {
-            return null;
+    private function _getValidationFieldMessage(string $prefix = '<div class="invalid-feedback">', string $sufix = '</div>'): string {
+
+        if (!$this->_name || !$this->_Ferrors) {
+
+            return '';
         }
-        $error = $errors->first($this->_name);
+
+        $arrayName = $this->_index !== null ? $this->_arrayName : null;
+        $error = $this->_type == 'checkbox' && $arrayName ? (isset($this->_Ferrors[$arrayName]) ? $this->_Ferrors[$arrayName] : null) : null;
 
         if (!$error) {
-            return null;
+
+            $name = $arrayName ? $arrayName . '.' . $this->_index : $this->_name;
+            $error = isset($this->_Ferrors[$name]) ? $this->_Ferrors[$name] : null;
+        }
+
+        if (!$error) {
+
+            return '';
+        }
+
+        if (is_array($error)) {
+
+            foreach ($error as $item) {
+
+                $error = $item;
+
+                break;
+            }
         }
 
         return $prefix . $error . $sufix;
@@ -792,6 +918,7 @@ class FormBuilder {
         $this->_size = null;
         $this->_readonly = false;
         $this->_disabled = false;
+        $this->_required = false;
         $this->_id = null;
         $this->_name = null;
         $this->_label = null;
@@ -802,6 +929,8 @@ class FormBuilder {
         $this->_block = false;
         $this->_value = null;
         $this->_multiple = false;
+        $this->_arrayName = null;
+        $this->_index = null;
     }
 
     /**
@@ -815,6 +944,8 @@ class FormBuilder {
         $this->_Fmultipart = false;
         $this->_Fdata = null;
         $this->_FidPrefix = '';
+        $this->_Findexes = [];
+        $this->_Fold = false;
+        $this->_Ferrors = null;
     }
-
 }
