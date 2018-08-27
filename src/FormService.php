@@ -28,7 +28,7 @@ class FormService {
      *
      * @var array
      */
-    private $_allowedRenders = ['open', 'close', 'file', 'text', 'password', 'email', 'number', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset', 'fieldsetOpen', 'fieldsetClose'];
+    private $_allowedRenders = ['open', 'close', 'file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset', 'fieldsetOpen', 'fieldsetClose'];
 
     /**
      * Allowed renders for indexing
@@ -214,6 +214,16 @@ class FormService {
     }
 
     /**
+     * Set inline form to inline inputs
+     * @param bool $inline
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function inlineForm(bool $inline = true): FormService
+    {
+        return $this->_set('FinlineForm', $inline);
+    }
+
+    /**
      * Set inline style for checkbox and radio inputs
      * @param bool $inline
      * @return \NetoJose\Bootstrap4Forms\FormService
@@ -321,6 +331,19 @@ class FormService {
     }
 
     /**
+     * Create a range input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function range(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('range')->name($name)->label($label)->value($default);
+    }
+
+    /**
      * Create a hidden input
      *
      * @param string $name
@@ -416,9 +439,9 @@ class FormService {
      * @param string $value
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function button(string $value = null): FormService
+    public function button(string $value = null, $color = 'primary', $size = null): FormService
     {
-        return $this->type('button')->value($value);
+        return $this->type('button')->color($color)->size($size)->value($value);
     }
 
     /**
@@ -427,9 +450,9 @@ class FormService {
      * @param string $value
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function submit(string $value): FormService
+    public function submit(string $value, $color = 'primary', $size = null): FormService
     {
-        return $this->button($value)->type('submit');
+        return $this->button($value)->type('submit')->color($color)->size($size);
     }
 
     /**
@@ -438,9 +461,9 @@ class FormService {
      * @param string $value
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function reset(string $value): FormService
+    public function reset(string $value, $color = 'primary', $size = null): FormService
     {
-        return $this->type('reset')->button($value);
+        return $this->button($value)->type('reset')->color($color)->size($size);
     }
 
     /**
@@ -720,6 +743,17 @@ class FormService {
     public function required($status = true) : FormService
     {
         return $this->_set('required', $status);
+    }
+
+    /**
+     * Set the checkbox/radio checked status
+     *
+     * @param type $status
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function checked($status = true) : FormService
+    {
+        return $this->_set('checked', $status);
     }
 
     /**
