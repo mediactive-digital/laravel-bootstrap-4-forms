@@ -4,14 +4,14 @@ This is a package for creating Bootstrap 4 styled form elements in Laravel 5.
 
 ## Features
 
-*   Labels
-*   Error messages
-*   Bootstrap 4 markup and classes (including state, colors, and sizes)
-*   Error validation messages
-*   Form fill (using Model instance, array or after form submission when a validation error occurs)
-*   Internationalization
-*   Add parameters using php chaining approach
-*   Zero dependences (no Laravel Collective dependency)
+-   Labels
+-   Error messages
+-   Bootstrap 4 markup and classes (including state, colors, and sizes)
+-   Error validation messages
+-   Form fill (using Model instance, array or after form submission when a validation error occurs)
+-   Internationalization
+-   Add parameters using php chaining approach
+-   Zero dependences (no Laravel Collective dependency)
 
 ## Introduction
 
@@ -82,6 +82,13 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 ```
 
 > Opening the form will add \_token field automatically for you
+
+#### Inline form
+
+```php
+// Making all inputs inline
+{!!Form::inlineForm()!!}
+```
 
 #### Fieldset
 
@@ -191,6 +198,32 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 ```php
 // Example
 {!!Form::radio('orange', 'Orange')!!}
+```
+
+#### Range inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::range('name', 'User name')!!}
+```
+
+#### Plain text inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::plainText('name', 'User name')!!}
 ```
 
 ##### Hidden
@@ -305,7 +338,7 @@ Set the checkbox/radio checked status
 ```php
 // Examples
 
-// Using readonly field
+// Make checkbox checked
 {!!Form::checkbox('agree', 'I agree')->checked()!!}
 
 // You can use FALSE to turn off checked status
@@ -314,7 +347,7 @@ Set the checkbox/radio checked status
 
 ### Inline
 
-Set the checkbox/radio checked status
+Set the checkbox/radio inline
 
 ```php
 // Examples
@@ -440,6 +473,9 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 
 // You can use FALSE to turn off block status
 {!!Form::text('name', 'Name')->block(false)!!}
+```
+
+
 ```
 
 ### Id

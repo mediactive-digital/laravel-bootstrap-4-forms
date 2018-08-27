@@ -10,6 +10,13 @@ class FormBuilder {
      * @var string
      */
     private $_Flocale;
+    
+    /**
+     * Form inline form flag
+     *
+     * @var string
+     */
+    private $_FinlineForm;
 
     /**
      * Form method
@@ -129,6 +136,13 @@ class FormBuilder {
      * @var boolean
      */
     private $_required;
+
+    /**
+     * Checked flag
+     *
+     * @var boolean
+     */
+    private $_checked;
 
     /**
      * Input id
@@ -258,6 +272,10 @@ class FormBuilder {
             $props['enctype'] = 'multipart/form-data';
         }
 
+        if($this->_FinlineForm) {
+            $props['class'] = 'form-inline';
+        }
+
         $attrs = $this->_buildAttrs($props, ['class-form-control']);
 
         $ret = '<form ' . $attrs . '>';
@@ -300,7 +318,7 @@ class FormBuilder {
         $attrs = $this->_buildAttrs(['class' => 'form-group']);
         $ret = '<fieldset' . ($attrs ? (' ' . $attrs) : '') . '>';
         $help = $this->_getHelpText();
-        $error = $this->_getValidationFieldMessage('<div class="invalid-feedback d-block">');
+        $error = $this->_getValidationFieldMessage('d-block');
 
         if (isset($this->_meta['legend'])) {
 
@@ -323,7 +341,7 @@ class FormBuilder {
      */
     public function fieldsetClose(): string {
 
-        $ret = $this->_getHelpText() . $this->_getValidationFieldMessage('<div class="invalid-feedback d-block">') . '</fieldset>';
+        $ret = $this->_getHelpText() . $this->_getValidationFieldMessage('d-block') . '</fieldset>';
 
         $this->_resetFlags();
 
@@ -335,9 +353,9 @@ class FormBuilder {
      *
      * @return string
      */
-    public function file(): string
-    {
-        $attrs = $this->_buildAttrs();
+    public function file(): string {
+
+        $attrs = $this->_buildAttrs(['class' => 'form-control-file']);
 
         return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
     }
@@ -353,6 +371,18 @@ class FormBuilder {
     }
 
     /**
+     * Return a text input tag
+     *
+     * @return string
+     */
+    public function plainText(): string {
+
+        $attrs = $this->_buildAttrs(['value' => $this->_getValue(), 'type' => 'text', 'class' => 'form-control-plaintext']);
+
+        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
+    }
+
+    /**
      * Return a password input tag
      *
      * @return string
@@ -360,6 +390,18 @@ class FormBuilder {
     public function password(): string
     {
         return $this->_renderInput('password');
+    }
+
+    /**
+     * Return a range input tag
+     *
+     * @return string
+     */
+    public function range(): string {
+
+        $attrs = $this->_buildAttrs(['value' => $this->_getValue(), 'type' => 'range', 'class' => 'form-control-range']);
+
+        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
     }
 
 
@@ -569,8 +611,14 @@ class FormBuilder {
         $result = '';
 
         if ($label) {
+
+            $classStr = '';
+            if($this->_FinlineForm) {
+                $classStr = ' class="sr-only"';
+            }
+
             $id = $this->_getId();
-            $result = '<label for="' . $id . '">' . $this->_e($label) . '</label>';
+            $result = '<label for="' . $id . '"'.$classStr.'>' . $this->_e($label) . '</label>';
         }
 
         return $result;
@@ -605,12 +653,22 @@ class FormBuilder {
             $props['aria-describedby'] = $this->_getIdHelp();
         }
 
-        if (!$props['class'] && !in_array('class-form-control', $ignore)) {
-            $props['class'] = 'form-control';
+        if (!in_array('class-form-control', $ignore)) {
+
+            if (!$props['class']) {
+
+                $props['class'] = 'form-control';
+            }
+
+            if ($this->_size) {
+
+                $props['class'] .= ' form-control-' . $this->_size;
+            }
         }
 
-        if ($this->_size) {
-            $props['class'] .= ' form-control-' . $this->_size;
+        if ($this->_FinlineForm) {
+
+            $props['class'] .= ' mb-2 mr-sm-2';
         }
 
         $validationFieldClass = $this->_getValidationFieldClass();
@@ -644,8 +702,15 @@ class FormBuilder {
 
         if (in_array($this->_type, ['radio', 'checkbox'])) {
 
-            $value = $this->_getValue();
-            $ret .= ($this->_type == 'checkbox' && is_array($value) ? in_array($this->_meta['value'], $value) : $value === $this->_meta['value']) ? 'checked ' : '';
+            if ($this->_checked) {
+
+                $ret .= 'checked ';
+            }
+            else {
+
+                $value = $this->_getValue();
+                $ret .= ($this->_type == 'checkbox' && is_array($value) ? in_array($this->_meta['value'], $value) : $value === $this->_meta['value']) ? 'checked ' : '';
+            }
         }
 
         if ($this->_type == 'hidden') {
@@ -788,7 +853,8 @@ class FormBuilder {
 
             $id = $this->_getIdHelp();
             $id = $id ? ' id="' . $id . '"' : '';
-            $help = '<small' . $id . ' class="form-text text-muted">' . $this->_e($this->_help) . '</small>';
+            $inlineClass = $this->_FinlineForm ? ' mt-0 mb-2 mr-sm-2' : '';
+            $help = '<small' . $id . ' class="form-text text-muted' . $inlineClass . '">' . $this->_e($this->_help) . '</small>';
         }
 
         return $help;
@@ -838,10 +904,11 @@ class FormBuilder {
         $attrs  = $this->_buildAttrs(["class" => "form-check-input", "type" => $this->_type, "value" => $this->_meta['value']]);
         $inline = $this->_checkInline ? ' form-check-inline' : '';
         $label  = $this->_e($this->_label);
+        $id = $this->_getId();
 
         $this->_resetFlags();
 
-        return '<div class="form-check' . $inline . '"><input ' . $attrs . '><label class="form-check-label">' . $label . '</label></div>';
+        return '<div class="form-check' . $inline . '"><input ' . $attrs . '><label class="form-check-label" for="'.$id.'">' . $label . '</label></div>';
     }
 
     /**
@@ -858,17 +925,24 @@ class FormBuilder {
 
         $this->_resetFlags();
 
-        return '<div class="form-group">' . $label . $field . $help . $error . '</div>';
+        $formGroupOpen = '<div class="form-group">';
+        $formGroupClose = '</div>';
+
+        if ($this->_FinlineForm) {
+
+            $formGroupOpen = $formGroupClose = '';
+        }
+
+        return $formGroupOpen . $label . $field . $help . $error . $formGroupClose;
     }
 
     /**
      * Return a validation error message
      *
-     * @param string $prefix
-     * @param string $sufix
+     * @param string $class
      * @return string
      */
-    private function _getValidationFieldMessage(string $prefix = '<div class="invalid-feedback">', string $sufix = '</div>'): string {
+    private function _getValidationFieldMessage(string $class = ''): string {
 
         if (!$this->_name || !$this->_Ferrors) {
 
@@ -899,7 +973,9 @@ class FormBuilder {
             }
         }
 
-        return $prefix . $error . $sufix;
+        $inlineClass = $this->_FinlineForm ? ' mt-0 mb-2 mr-sm-2' : '';
+
+        return '<div class="invalid-feedback' . ($class ? ' ' . $class : '') . $inlineClass . '">' . $error . '</div>';
     }
 
     /**
@@ -919,6 +995,7 @@ class FormBuilder {
         $this->_readonly = false;
         $this->_disabled = false;
         $this->_required = false;
+        $this->_checked = false;
         $this->_id = null;
         $this->_name = null;
         $this->_label = null;
@@ -942,6 +1019,7 @@ class FormBuilder {
         $this->_Flocale = null;
         $this->_Fmethod = 'post';
         $this->_Fmultipart = false;
+        $this->_FinlineForm = false;
         $this->_Fdata = null;
         $this->_FidPrefix = '';
         $this->_Findexes = [];
