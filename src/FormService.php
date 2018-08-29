@@ -35,7 +35,7 @@ class FormService {
      *
      * @var array
      */
-    private $_allowedIndexRenders = ['file', 'text', 'password', 'email', 'number', 'hidden', 'checkbox', 'textarea'];
+    private $_allowedIndexRenders = ['file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'hidden', 'checkbox', 'textarea'];
 
     /**
      * Create a new FormSevice instance
@@ -113,6 +113,17 @@ class FormService {
     public function idPrefix(string $prefix = ''): FormService
     {
         return $this->_set('FidPrefix', $prefix);
+    }
+
+    /**
+     * Set a generic class for all inputs
+     *
+     * @param string $class
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function generalClass(string $class = ''): FormService {
+
+        return $this->_set('Fclass', $class);
     }
 
     /**
@@ -261,19 +272,29 @@ class FormService {
      *
      * @param string $legend
      * @param string $name
+     * @param bool $wrap
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function fieldsetOpen(string $legend = null, string $name = null): FormService {
+    public function fieldsetOpen(string $legend = null, string $name = null, $wrap = false): FormService {
+
+        $meta = [];
 
         if ($legend) {
 
-            $this->_set('meta', ['legend' => $legend]);
+            $meta['legend'] = $legend;
 
             if ($name) {
 
                 $this->_set('name', $name);
             }
         }
+
+        if ($wrap) {
+
+            $meta['wrap'] = $wrap;
+        }
+
+        $this->_set('meta', $meta);
 
         return $this->render('fieldsetOpen');
     }
@@ -328,6 +349,58 @@ class FormService {
     public function text(string $name = null, $label = null, string $default = null): FormService
     {
         return $this->type('text')->name($name)->label($label)->value($default);
+    }
+
+    /**
+     * Create a plain text input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function plainText(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('plainText')->name($name)->label($label)->value($default);
+    }
+
+    /**
+     * Create a password input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function password(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('password')->name($name)->label($label)->value($default);
+    }
+
+    /**
+     * Create an email input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function email(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('email')->name($name)->label($label)->value($default);
+    }
+
+    /**
+     * Create a number input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function number(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('number')->name($name)->label($label)->value($default);
     }
 
     /**
@@ -387,10 +460,10 @@ class FormService {
      * @param string $name
      * @param string $label
      * @param string $value
-     * @param string $default
+     * @param bool $default
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function checkbox(string $name = null, string $label = null, string $value = null, string $default = null): FormService
+    public function checkbox(string $name = null, string $label = null, string $value = null, bool $default = false): FormService
     {
         return $this->_checkboxRadio('checkbox', $name, $label, $value, $default);
     }
@@ -401,10 +474,10 @@ class FormService {
      * @param string $name
      * @param string $label
      * @param string $value
-     * @param string $default
+     * @param bool $default
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function radio(string $name = null, string $label = null, string $value = null, string $default = null): FormService
+    public function radio(string $name = null, string $label = null, string $value = null, bool $default = false): FormService
     {
         return $this->_checkboxRadio('radio', $name, $label, $value, $default);
     }
@@ -485,19 +558,12 @@ class FormService {
     /**
      * Flag a checkbox or a radio input as checked
      *
-     * @param bool $checked
+     * @param type $status
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function checked(bool $checked = true): FormService
+    public function checked($status = true) : FormService
     {
-        $type = $this->_builder->get('type');
-        $meta = $this->_builder->get('meta');
-
-        if ($type === 'radio' && $checked) {
-            $checked = $meta['value'];
-        }
-
-        return $this->value($checked);
+        return $this->_set('checked', $status);
     }
 
     /**
@@ -548,6 +614,17 @@ class FormService {
     public function id($id): FormService
     {
         return $this->_set('id', $id);
+    }
+
+    /**
+     * Set a field class
+     *
+     * @param type $class
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function class($class): FormService {
+
+        return $this->_set('class', $class);
     }
 
     /**
@@ -708,7 +785,7 @@ class FormService {
      *
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function block(bool $status= true): FormService
+    public function block(bool $status = true): FormService
     {
         return $this->_set('block', $status);
     }
@@ -718,7 +795,7 @@ class FormService {
      *
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function readonly($status = true): FormService
+    public function readonly(bool $status = true): FormService
     {
         return $this->_set('readonly', $status);
     }
@@ -729,7 +806,7 @@ class FormService {
      * @param type $status
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function disabled($status = true): FormService
+    public function disabled(bool $status = true): FormService
     {
         return $this->_set('disabled', $status);
     }
@@ -740,20 +817,9 @@ class FormService {
      * @param type $status
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function required($status = true) : FormService
+    public function required(bool $status = true) : FormService
     {
         return $this->_set('required', $status);
-    }
-
-    /**
-     * Set the checkbox/radio checked status
-     *
-     * @param type $status
-     * @return \NetoJose\Bootstrap4Forms\FormService
-     */
-    public function checked($status = true) : FormService
-    {
-        return $this->_set('checked', $status);
     }
 
     /**
@@ -790,6 +856,28 @@ class FormService {
     }
 
     /**
+     * Input sr-only
+     *
+     * @param bool $status
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function srOnly(bool $status = true): FormService
+    {
+        return $this->_set('srOnly', $status);
+    }
+
+    /**
+     * Input prepend
+     *
+     * @param type $prepend
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function prepend($prepend): FormService
+    {
+        return $this->_set('prepend', $prepend);
+    }
+
+    /**
      * Set a form builder attribute
      *
      * @param string $attr
@@ -810,7 +898,7 @@ class FormService {
      * @param string $name
      * @param string $label
      * @param mixed $value
-     * @param string $default
+     * @param bool $default
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
     private function _checkboxRadio($type, $name, $label, $value, $default): FormService

@@ -96,6 +96,7 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 | ------- | ------ | ------- | --------------- |
 | $legend | string | null    | Fieldset Legend |
 | $name   | string | null    | Fieldset Error  |
+| $wrap   | bool   | false   | Fieldset Wrap   |
 
 ```php
 // Examples
@@ -108,6 +109,9 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 
 // Open fieldset with error display by field name
 {!!Form::fieldsetOpen('Legend title', 'field_name')!!}
+
+// Open fieldset as wrapper (checkbox/radio)
+{!!Form::fieldsetOpen('Legend title', 'field_name', true)!!}
 
 // Open fieldset with help text
 {!!Form::fieldsetOpen('Legend title')->help('Help')!!}
@@ -367,6 +371,37 @@ Set the checkbox/radio inline
 {!!Form::text('name', 'Name')->placeholder('Input placeholder')!!}
 ```
 
+### SrOnly
+
+Set the label sr-only status
+
+| Param    | Type    | Default | Description    |
+| -------- | ------- | ------- | -------------- |
+| $srOnly  | boolean | true    | SrOnly status  |
+
+```php
+// Examples
+
+// Set sr-only style on label
+{!!Form::text('name', 'Name')->srOnly()!!}
+
+// You can use FALSE to turn off sr-only status
+{!!Form::text('name', 'Name')->srOnly(false)!!}
+```
+
+### Prepend
+
+Prepend content to input
+
+| Param    | Type    | Default | Description    |
+| -------- | ------- | ------- | -------------- |
+| $prepend | string  | null    | Input prepend  |
+
+```php
+// Example
+{!!Form::text('name', 'Name')->prepend('Input prepend')!!}
+```
+
 ### Select Multiple
 
 ```php
@@ -475,18 +510,26 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 {!!Form::text('name', 'Name')->block(false)!!}
 ```
 
-
-```
-
 ### Id
 
 | Param | Type   | Default | Description |
 | ----- | ------ | ------- | ----------- |
-| $id   | string | null    | Id field    |
+| $id   | string | null    | Field id    |
 
 ```php
 // Example
 {!!Form::text('name', 'Name')->id('user-name')!!}
+```
+
+### Class
+
+| Param   | Type   | Default | Description |
+| ------- | ------ | ------- | ----------- |
+| $class  | string | null    | Field class |
+
+```php
+// Example
+{!!Form::text('name', 'Name')->class('class')!!}
 ```
 
 ### Id prefix
@@ -498,6 +541,17 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 ```php
 // Example
 {!!Form::open()->idPrefix('register')!!}
+```
+
+### General class
+
+| Param   | Type   | Default | Description    |
+| ------- | ------ | ------- | -------------- |
+| $class  | string | null    | General class  |
+
+```php
+// Example
+{!!Form::open()->generalClass('class')!!}
 ```
 
 ### Multipart

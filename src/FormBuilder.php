@@ -47,6 +47,13 @@ class FormBuilder {
     private $_FidPrefix;
 
     /**
+     * Inputs generic class
+     *
+     * @var string
+     */
+    private $_Fclass;
+
+    /**
      * Form elements arrays indexes
      *
      * @var array
@@ -152,6 +159,13 @@ class FormBuilder {
     private $_id;
 
     /**
+     * Input class
+     *
+     * @var string
+     */
+    private $_class;
+
+    /**
      * Input name
      *
      * @var string
@@ -228,6 +242,20 @@ class FormBuilder {
      */
     private $_index;
 
+    /**
+     * Input sr-only
+     *
+     * @var bool
+     */
+    private $_srOnly;
+
+    /**
+     * Input prepend
+     *
+     * @var string
+     */
+    private $_prepend;
+
     public function __construct()
     {
         $this->_resetFlags();
@@ -273,7 +301,7 @@ class FormBuilder {
         }
 
         if($this->_FinlineForm) {
-            $props['class'] = 'form-inline';
+            $props['class'] = 'form-inline d-block d-sm-flex';
         }
 
         $attrs = $this->_buildAttrs($props, ['class-form-control']);
@@ -315,14 +343,14 @@ class FormBuilder {
      */
     public function fieldsetOpen(): string {
 
-        $attrs = $this->_buildAttrs(['class' => 'form-group']);
-        $ret = '<fieldset' . ($attrs ? (' ' . $attrs) : '') . '>';
-        $help = $this->_getHelpText();
-        $error = $this->_getValidationFieldMessage('d-block');
+        $attrs = $this->_buildAttrs(['class' => 'form-group' . (isset($this->_meta['wrap']) ? '' : ' mb-0')]);
+        $ret = '<fieldset' . ($attrs ? (' ' . $attrs) : '') . '>' . ($this->_FinlineForm ? '<div class="form-group mb-0">' : '');
+        $help = $this->_getHelpText($this->_FinlineForm ? ' mt-sm-0 ml-sm-2' : '');
+        $error = $this->_getValidationFieldMessage($this->_FinlineForm ? ' w-auto mt-sm-0 ml-sm-2' : '');
 
         if (isset($this->_meta['legend'])) {
 
-            $ret .= '<legend>' . $this->_e($this->_meta['legend']) . $help . $error . '</legend>';
+            $ret .= '<div class="form-group mb-2' . ($this->_FinlineForm ? ' my-sm-1 mx-sm-1' : '') . '"><legend class="mb-0 w-auto' . ($this->_FinlineForm ? ' d-sm-inline-block' : '') . '">' . $this->_e($this->_meta['legend']) . '</legend>' . $help . $error . '</div>';
         }
         else {
 
@@ -341,7 +369,7 @@ class FormBuilder {
      */
     public function fieldsetClose(): string {
 
-        $ret = $this->_getHelpText() . $this->_getValidationFieldMessage('d-block') . '</fieldset>';
+        $ret = $this->_getHelpText($this->_FinlineForm ? ' mt-sm-0 mx-sm-1' : '') . $this->_getValidationFieldMessage($this->_FinlineForm ? ' w-auto mt-sm-0 mx-sm-1' : '') . ($this->_FinlineForm ? '</div>' : '') . '</fieldset>';
 
         $this->_resetFlags();
 
@@ -357,7 +385,7 @@ class FormBuilder {
 
         $attrs = $this->_buildAttrs(['class' => 'form-control-file']);
 
-        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
+        return $this->_renderWrapperCommomField('<input ' . $attrs . '>');
     }
 
     /**
@@ -371,15 +399,15 @@ class FormBuilder {
     }
 
     /**
-     * Return a text input tag
+     * Return a plain text input tag
      *
      * @return string
      */
     public function plainText(): string {
 
-        $attrs = $this->_buildAttrs(['value' => $this->_getValue(), 'type' => 'text', 'class' => 'form-control-plaintext']);
+        $attrs = $this->_buildAttrs(['value' => $this->_getValue(), 'type' => 'text', 'class' => 'form-control-plaintext', 'readonly' => true]);
 
-        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
+        return $this->_renderWrapperCommomField('<input ' . $attrs . '>');
     }
 
     /**
@@ -389,7 +417,7 @@ class FormBuilder {
      */
     public function password(): string
     {
-        return $this->_renderInput('password');
+        return $this->_renderInput();
     }
 
     /**
@@ -401,7 +429,7 @@ class FormBuilder {
 
         $attrs = $this->_buildAttrs(['value' => $this->_getValue(), 'type' => 'range', 'class' => 'form-control-range']);
 
-        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
+        return $this->_renderWrapperCommomField('<input ' . $attrs . '>');
     }
 
 
@@ -412,7 +440,7 @@ class FormBuilder {
      */
     public function email(): string
     {
-        return $this->_renderInput('email');
+        return $this->_renderInput();
     }
 
     /**
@@ -422,7 +450,7 @@ class FormBuilder {
      */
     public function number(): string
     {
-        return $this->_renderInput('number');
+        return $this->_renderInput();
     }
 
     /**
@@ -433,7 +461,7 @@ class FormBuilder {
     public function hidden(): string
     {
         $value = $this->_getValue();
-        $attrs = $this->_buildAttrs(['value' => $value]);
+        $attrs = $this->_buildAttrs(['value' => $value], ['class-form-control']);
 
         $this->_resetFlags();
 
@@ -450,7 +478,7 @@ class FormBuilder {
         $attrs = $this->_buildAttrs(['rows' => 3]);
         $value = $this->_getValue();
 
-        return $this->_renderWarpperCommomField('<textarea ' . $attrs . '>' . $value . '</textarea>');
+        return $this->_renderWrapperCommomField('<textarea ' . $attrs . '>' . $value . '</textarea>');
     }
 
     /**
@@ -487,7 +515,7 @@ class FormBuilder {
             }
         }
 
-        return $this->_renderWarpperCommomField('<select ' . $attrs . '>' . $options . '</select>');
+        return $this->_renderWrapperCommomField('<select ' . $attrs . '>' . $options . '</select>');
     }
 
     /**
@@ -561,7 +589,7 @@ class FormBuilder {
         $value = $this->_getValue();
         $attrs = $this->_buildAttrs(['value' => $value, 'type' => $type]);
 
-        return $this->_renderWarpperCommomField('<input ' . $attrs . '>');
+        return $this->_renderWrapperCommomField('<input ' . $attrs . '>');
     }
 
     /**
@@ -574,9 +602,10 @@ class FormBuilder {
         $size = $this->_size ? ' btn-' . $this->_size : '';
         $outline = $this->_outline ? 'outline-' : '';
         $block = $this->_block ? ' btn-block' : '';
+        $inlineClass = $this->_FinlineForm ? ' my-sm-1 mx-sm-1' : '';
         $disabled = $this->_disabled ? ' disabled' : '';
         $value = $this->_e($this->_value);
-        $cls = 'btn btn-' . $outline . $this->_color . $size . $block;
+        $cls = 'btn btn-' . $outline . $this->_color . $size . $block . $inlineClass;
 
         if ($this->_type == 'anchor') {
             $href = $this->_url ?: 'javascript:void(0)';
@@ -612,13 +641,18 @@ class FormBuilder {
 
         if ($label) {
 
-            $classStr = '';
-            if($this->_FinlineForm) {
-                $classStr = ' class="sr-only"';
+            $id = $this->_getId();
+            $cls = '';
+
+            if ($this->_srOnly) {
+
+                $cls = 'sr-only';
             }
 
-            $id = $this->_getId();
-            $result = '<label for="' . $id . '"'.$classStr.'>' . $this->_e($label) . '</label>';
+            $cls .= $this->_FinlineForm ? ' mr-sm-2' : '';
+            $cls = $cls ? ' class="' . $cls . '"' : $cls;
+
+            $result = '<label for="' . $id . '"' . $cls . '>' . $this->_e($label) . '</label>';
         }
 
         return $result;
@@ -630,8 +664,7 @@ class FormBuilder {
      * @param array $props
      * @return string
      */
-    private function _buildAttrs(array $props = [], array $ignore = []): string
-    {
+    private function _buildAttrs(array $props = [], array $ignore = []): string {
 
         $ret = '';
 
@@ -666,10 +699,8 @@ class FormBuilder {
             }
         }
 
-        if ($this->_FinlineForm) {
-
-            $props['class'] .= ' mb-2 mr-sm-2';
-        }
+        $cls = $this->_getClass();
+        $props['class'] .= $cls ? ' ' . $cls : '';
 
         $validationFieldClass = $this->_getValidationFieldClass();
         $props['class'] .= $validationFieldClass ? ' ' . $validationFieldClass : '';
@@ -714,8 +745,8 @@ class FormBuilder {
         }
 
         if ($this->_type == 'hidden') {
+
             unset($props['autocomplete']);
-            unset($props['class']);
         }
 
         $allProps = array_merge($this->_attrs, $props);
@@ -806,7 +837,7 @@ class FormBuilder {
     }
 
     /**
-     * Return a element id
+     * Return an element id
      *
      * @return string
      */
@@ -829,6 +860,18 @@ class FormBuilder {
     }
 
     /**
+     * Return an element class
+     *
+     * @return string
+     */
+    private function _getClass() {
+
+        $cls = $this->_Fclass . ($this->_class ? ' ' . $this->_class : '');
+
+        return $cls ? $cls : null;
+    }
+
+    /**
      * Return a help text id HTML element
      *
      * @return string
@@ -843,9 +886,10 @@ class FormBuilder {
     /**
      * Return a help text
      *
+     * @param string $class
      * @return string $help
      */
-    private function _getHelpText(): string {
+    private function _getHelpText(string $class = ''): string {
 
         $help = '';
 
@@ -853,8 +897,8 @@ class FormBuilder {
 
             $id = $this->_getIdHelp();
             $id = $id ? ' id="' . $id . '"' : '';
-            $inlineClass = $this->_FinlineForm ? ' mt-0 mb-2 mr-sm-2' : '';
-            $help = '<small' . $id . ' class="form-text text-muted' . $inlineClass . '">' . $this->_e($this->_help) . '</small>';
+
+            $help = '<small' . $id . ' class="form-text text-muted' . $class . '">' . $this->_e($this->_help) . '</small>';
         }
 
         return $help;
@@ -899,16 +943,17 @@ class FormBuilder {
      *
      * @return string
      */
-    private function _renderCheckboxOrRadio(): string
-    {
+    private function _renderCheckboxOrRadio(): string {
+
         $attrs  = $this->_buildAttrs(["class" => "form-check-input", "type" => $this->_type, "value" => $this->_meta['value']]);
         $inline = $this->_checkInline ? ' form-check-inline' : '';
+        $inlineClass = $this->_FinlineForm ? ' my-sm-1 mx-sm-1' : '';
         $label  = $this->_e($this->_label);
         $id = $this->_getId();
 
         $this->_resetFlags();
 
-        return '<div class="form-check' . $inline . '"><input ' . $attrs . '><label class="form-check-label" for="'.$id.'">' . $label . '</label></div>';
+        return '<div class="form-check' . $inline . $inlineClass . '"><input ' . $attrs . '><label class="form-check-label" for="' . $id . '">' . $label . '</label></div>';
     }
 
     /**
@@ -917,23 +962,32 @@ class FormBuilder {
      * @param type $field
      * @return string
      */
-    private function _renderWarpperCommomField(string $field): string
-    {
+    private function _renderWrapperCommomField(string $field): string {
+
         $label = $this->_getLabel();
-        $help = $this->_getHelpText();
-        $error = $this->_getValidationFieldMessage();
-
-        $this->_resetFlags();
-
-        $formGroupOpen = '<div class="form-group">';
-        $formGroupClose = '</div>';
+        $help = $this->_getHelpText($this->_FinlineForm ? ' mt-sm-0 ml-sm-2' : '');
+        $error = $this->_getValidationFieldMessage($this->_FinlineForm ? ' w-auto mt-sm-0 ml-sm-2' : '');
+        $formInputOpen = $formInputClose = $inlineClass = '';
 
         if ($this->_FinlineForm) {
 
-            $formGroupOpen = $formGroupClose = '';
+            $inlineClass = ' my-sm-1 mx-sm-1';
+
+            if ($this->_prepend || in_array($this->_type, ['file', 'range', 'plainText'])) {
+
+                $formInputOpen = '<div class="input-group">';
+                $formInputClose = '</div>';
+
+                if ($this->_prepend) {
+
+                    $formInputOpen .= '<div class="input-group-prepend"><div class="input-group-text">' . $this->_prepend . '</div></div>';
+                }
+            }
         }
 
-        return $formGroupOpen . $label . $field . $help . $error . $formGroupClose;
+        $this->_resetFlags();
+
+        return '<div class="form-group' . $inlineClass . '">' . $label . $formInputOpen . $field . $formInputClose . $help . $error . '</div>';
     }
 
     /**
@@ -973,9 +1027,7 @@ class FormBuilder {
             }
         }
 
-        $inlineClass = $this->_FinlineForm ? ' mt-0 mb-2 mr-sm-2' : '';
-
-        return '<div class="invalid-feedback' . ($class ? ' ' . $class : '') . $inlineClass . '">' . $error . '</div>';
+        return '<div class="invalid-feedback d-block' . ($class ? ' ' . $class : '') . '">' . $error . '</div>';
     }
 
     /**
@@ -997,6 +1049,7 @@ class FormBuilder {
         $this->_required = false;
         $this->_checked = false;
         $this->_id = null;
+        $this->_class = null;
         $this->_name = null;
         $this->_label = null;
         $this->_options = [];
@@ -1008,6 +1061,8 @@ class FormBuilder {
         $this->_multiple = false;
         $this->_arrayName = null;
         $this->_index = null;
+        $this->_srOnly = false;
+        $this->_prepend = null;
     }
 
     /**
@@ -1022,6 +1077,7 @@ class FormBuilder {
         $this->_FinlineForm = false;
         $this->_Fdata = null;
         $this->_FidPrefix = '';
+        $this->_Fclass = '';
         $this->_Findexes = [];
         $this->_Fold = false;
         $this->_Ferrors = null;
