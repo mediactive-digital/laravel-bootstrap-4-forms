@@ -740,7 +740,7 @@ class FormBuilder {
             else {
 
                 $value = $this->_getValue();
-                $ret .= ($this->_type == 'checkbox' && is_array($value) ? in_array($this->_meta['value'], $value) : $value === $this->_meta['value']) ? 'checked ' : '';
+                $ret .= ($this->_type == 'checkbox' && is_array($value) ? in_array($this->_meta['value'], $value) : $value == $this->_meta['value']) ? 'checked ' : '';
             }
         }
 

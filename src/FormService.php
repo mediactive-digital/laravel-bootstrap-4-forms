@@ -901,13 +901,10 @@ class FormService {
      * @param bool $default
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    private function _checkboxRadio($type, $name, $label, $value, $default): FormService
-    {
-        $inputValue = $value === null ? $name : $value;
+    private function _checkboxRadio($type, $name, $label, $value, $default): FormService {
 
-        if ($default) {
-            $default = $inputValue;
-        }
+        $inputValue = $value === null ? $name : $value;
+        $default = $default ? $inputValue : null;
 
         return $this->_set('meta', ['value' => $inputValue])->type($type)->name($name)->label($label)->value($default);
     }
