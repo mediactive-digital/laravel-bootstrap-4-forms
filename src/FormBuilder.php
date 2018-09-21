@@ -866,7 +866,7 @@ class FormBuilder {
      */
     private function _getClass() {
 
-        $cls = $this->_Fclass . ($this->_class ? ' ' . $this->_class : '');
+        $cls = $this->_Fclass . ($this->_class ? ($this->_Fclass ? ' ' : '') . $this->_class : '');
 
         return $cls ? $cls : null;
     }
