@@ -110,6 +110,13 @@ class FormBuilder {
     private $_placeholder;
 
     /**
+     * Input autocomplete
+     *
+     * @var boolean
+     */
+    private $_autocomplete;
+
+    /**
      * Flag to determine checkbox/radio style
      *
      * @var boolean
@@ -682,6 +689,10 @@ class FormBuilder {
             $props['placeholder'] = $this->_placeholder;
         }
 
+        if ($this->_autocomplete !== null) {
+            $props['autocomplete'] = $this->_autocomplete ? 'on' : 'off';
+        }
+
         if ($this->_help) {
             $props['aria-describedby'] = $this->_getIdHelp();
         }
@@ -1042,6 +1053,7 @@ class FormBuilder {
         $this->_type = null;
         $this->_url = null;
         $this->_placeholder = null;
+        $this->_autocomplete = null;
         $this->_checkInline = false;
         $this->_size = null;
         $this->_readonly = false;

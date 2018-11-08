@@ -371,6 +371,22 @@ Set the checkbox/radio inline
 {!!Form::text('name', 'Name')->placeholder('Input placeholder')!!}
 ```
 
+### Autocomplete
+
+| Param         | Type    | Default | Description         |
+| ------------- | ------- | ------- | ------------------- |
+| $autocomplete | boolean | true    | Autocomplete status |
+
+```php
+// Examples
+
+// Set autocomplete on input
+{!!Form::text('name', 'Name')->autocomplete()!!}
+
+// You can use FALSE to turn off autocomplete status
+{!!Form::text('name', 'Name')->autocomplete(false)!!}
+```
+
 ### SrOnly
 
 Set the label sr-only status

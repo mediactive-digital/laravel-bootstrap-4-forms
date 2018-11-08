@@ -15,7 +15,7 @@
 	"authors": [{
 		"name": "Mediactive Digital"
 	}],
-	"version": "2.0.7",
+	"version": "2.0.8",
 	"minimum-stability": "dev",
 	"require": {},
 	"autoload": {

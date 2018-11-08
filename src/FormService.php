@@ -834,6 +834,17 @@ class FormService {
     }
 
     /**
+     * Set the input autocomplete
+     *
+     * @param type $autocomplete
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function autocomplete(bool $autocomplete = true): FormService
+    {
+        return $this->_set('autocomplete', $autocomplete);
+    }
+
+    /**
      * Set custom attributes for a input
      *
      * @param array $attrs
