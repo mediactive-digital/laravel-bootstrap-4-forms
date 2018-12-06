@@ -628,6 +628,28 @@ class FormService {
     }
 
     /**
+     * Set a wrapper class
+     *
+     * @param type $class
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function wrapperClass($class): FormService {
+
+        return $this->_set('wrapperClass', $class);
+    }
+
+    /**
+     * Set a label class
+     *
+     * @param type $class
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function labelClass($class): FormService {
+
+        return $this->_set('labelClass', $class);
+    }
+
+    /**
      * Set a field name
      *
      * @param type $name
@@ -778,6 +800,16 @@ class FormService {
     public function outline(bool $outline = true): FormService
     {
         return $this->_set('outline', $outline);
+    }
+
+    /**
+     * Set simple status
+     *
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function simple(bool $simple = true): FormService {
+
+        return $this->_set('simple', $simple);
     }
 
     /**

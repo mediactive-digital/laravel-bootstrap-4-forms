@@ -173,6 +173,20 @@ class FormBuilder {
     private $_class;
 
     /**
+     * Wrapper class
+     *
+     * @var string
+     */
+    private $_wrapperClass;
+
+    /**
+     * Label class
+     *
+     * @var string
+     */
+    private $_labelClass;
+
+    /**
      * Input name
      *
      * @var string
@@ -213,6 +227,13 @@ class FormBuilder {
      * @var boolean
      */
     private $_outline;
+
+    /**
+     * Button simple flag
+     *
+     * @var boolean
+     */
+    private $_simple;
 
     /**
      * Input block flag
@@ -606,13 +627,14 @@ class FormBuilder {
      */
     private function _renderButtonOrAnchor(): string
     {
-        $size = $this->_size ? ' btn-' . $this->_size : '';
-        $outline = $this->_outline ? 'outline-' : '';
-        $block = $this->_block ? ' btn-block' : '';
-        $inlineClass = $this->_FinlineForm ? ' my-sm-1 mx-sm-1' : '';
+        $size = !$this->_simple && $this->_size ? ' btn-' . $this->_size : '';
+        $outline = !$this->_simple && $this->_outline ? 'outline-' : '';
+        $block = !$this->_simple && $this->_block ? ' btn-block' : '';
         $disabled = $this->_disabled ? ' disabled' : '';
         $value = $this->_e($this->_value);
-        $cls = 'btn btn-' . $outline . $this->_color . $size . $block . $inlineClass;
+        $btnClass = !$this->_simple ? 'btn btn-' . $outline . $this->_color . $size . $block : '';
+        $inlineClass = $this->_FinlineForm ? 'my-sm-1 mx-sm-1' : '';
+        $cls = $btnClass . ($btnClass ? ' ' : '') . $inlineClass;
 
         if ($this->_type == 'anchor') {
             $href = $this->_url ?: 'javascript:void(0)';
@@ -622,6 +644,9 @@ class FormBuilder {
                         'href' => $href,
                         'role' => 'button',
                         'aria-disabled' => $disabled ? 'true' : null
+                    ],
+                    [
+                        'class-form-control'
                     ]
             );
             $ret = '<a ' . $attrs . '>' . $value . '</a>';
@@ -657,6 +682,7 @@ class FormBuilder {
             }
 
             $cls .= $this->_FinlineForm ? ' mr-sm-2' : '';
+            $cls .= $this->_labelClass ? ' ' . $this->_labelClass : '';
             $cls = $cls ? ' class="' . $cls . '"' : $cls;
 
             $result = '<label for="' . $id . '"' . $cls . '>' . $this->_e($label) . '</label>';
@@ -959,12 +985,14 @@ class FormBuilder {
         $attrs  = $this->_buildAttrs(["class" => "form-check-input", "type" => $this->_type, "value" => $this->_meta['value']]);
         $inline = $this->_checkInline ? ' form-check-inline' : '';
         $inlineClass = $this->_FinlineForm ? ' my-sm-1 mx-sm-1' : '';
+        $wrapperClass = $this->_wrapperClass ? ' ' . $this->_wrapperClass : '';
+        $labelClass = $this->_labelClass ? ' ' . $this->_labelClass : '';
         $label  = $this->_e($this->_label);
         $id = $this->_getId();
 
         $this->_resetFlags();
 
-        return '<div class="form-check' . $inline . $inlineClass . '"><input ' . $attrs . '><label class="form-check-label" for="' . $id . '">' . $label . '</label></div>';
+        return '<div class="form-check' . $inline . $inlineClass . $wrapperClass . '"><input ' . $attrs . '><label class="form-check-label' . $labelClass . '" for="' . $id . '">' . $label . '</label></div>';
     }
 
     /**
@@ -979,6 +1007,7 @@ class FormBuilder {
         $help = $this->_getHelpText($this->_FinlineForm ? ' mt-sm-0 ml-sm-2' : '');
         $error = $this->_getValidationFieldMessage($this->_FinlineForm ? ' w-auto mt-sm-0 ml-sm-2' : '');
         $formInputOpen = $formInputClose = $inlineClass = '';
+        $wrapperClass = $this->_wrapperClass ? ' ' . $this->_wrapperClass : '';
 
         if ($this->_FinlineForm) {
 
@@ -998,7 +1027,7 @@ class FormBuilder {
 
         $this->_resetFlags();
 
-        return '<div class="form-group' . $inlineClass . '">' . $label . $formInputOpen . $field . $formInputClose . $help . $error . '</div>';
+        return '<div class="form-group' . $inlineClass . $wrapperClass . '">' . $label . $formInputOpen . $field . $formInputClose . $help . $error . '</div>';
     }
 
     /**
@@ -1062,12 +1091,15 @@ class FormBuilder {
         $this->_checked = false;
         $this->_id = null;
         $this->_class = null;
+        $this->_wrapperClass = null;
+        $this->_labelClass = null;
         $this->_name = null;
         $this->_label = null;
         $this->_options = [];
         $this->_help = null;
         $this->_color = "primary";
         $this->_outline = false;
+        $this->_simple = false;
         $this->_block = false;
         $this->_value = null;
         $this->_multiple = false;

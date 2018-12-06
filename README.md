@@ -526,6 +526,25 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 {!!Form::text('name', 'Name')->block(false)!!}
 ```
 
+### Simple
+
+| Param   | Type    | Default | Description   |
+| ------- | ------- | ------- | ------------- |
+| $simple | boolean | true    | Simple status |
+
+```php
+// Examples
+
+// Set simple status for a button
+{!!Form::button('Button')->simple()!!}
+
+// Set simple status for an anchor
+{!!Form::anchor('Anchor')->simple()!!}
+
+// You can use FALSE to turn off simple status
+{!!Form::button('Button')->simple(false)!!}
+```
+
 ### Id
 
 | Param | Type   | Default | Description |
@@ -546,6 +565,28 @@ Using locale, the package will look for a resources/lang/{CURRENT_LANG}/forms/us
 ```php
 // Example
 {!!Form::text('name', 'Name')->class('class')!!}
+```
+
+### Wrapper class
+
+| Param   | Type   | Default | Description   |
+| ------- | ------ | ------- | ------------- |
+| $class  | string | null    | Wrapper class |
+
+```php
+// Example
+{!!Form::text('name', 'Name')->wrapperClass('class')!!}
+```
+
+### Label class
+
+| Param   | Type   | Default | Description |
+| ------- | ------ | ------- | ----------- |
+| $class  | string | null    | Label class |
+
+```php
+// Example
+{!!Form::text('name', 'Name')->labelClass('class')!!}
 ```
 
 ### Id prefix
