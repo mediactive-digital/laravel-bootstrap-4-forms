@@ -44,7 +44,6 @@ class FormService {
 
         $this->_builder = new FormBuilder;
         $this->_builder->set('Fold', old());
-        $this->_builder->set('Ferrors', ($errors = session('errors')) ? $errors->toArray() : null);
     }
 
     /**
@@ -87,10 +86,13 @@ class FormService {
     /**
      * Open the form
      *
+     * @param string $messageBag
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function open(): FormService
-    {
+    public function open($messageBag = 'default'): FormService {
+
+        $this->_set('Ferrors', ($errors = session('errors')) && $errors->hasBag($messageBag) ? $errors->getBag($messageBag)->toArray() : []);
+
         return $this->render('open');
     }
 

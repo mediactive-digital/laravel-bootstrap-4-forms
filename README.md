@@ -75,9 +75,14 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 
 ```php
 // Opening a form using POST method
-
 {!!Form::open()!!}
+
+// Opening a form using POST method with specific errors message bag
+{!!Form::open('messageBag')!!}
+
 // ... Form components here
+
+// Closing a form
 {!!Form::close()!!}
 ```
 

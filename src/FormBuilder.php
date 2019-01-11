@@ -58,21 +58,21 @@ class FormBuilder {
      *
      * @var array
      */
-    private $_Findexes = [];
+    private $_Findexes;
 
     /**
      * Form old data
      *
-     * @var bool
+     * @var array
      */
-    private $_Fold = false;
+    private $_Fold;
 
     /**
      * Form errors
      *
-     * @var mixed
+     * @var array
      */
-    private $_Ferrors = null;
+    private $_Ferrors;
 
     /**
      * Input meta data
@@ -1123,7 +1123,6 @@ class FormBuilder {
         $this->_FidPrefix = '';
         $this->_Fclass = '';
         $this->_Findexes = [];
-        $this->_Fold = false;
-        $this->_Ferrors = null;
+        $this->_Ferrors = [];
     }
 }
