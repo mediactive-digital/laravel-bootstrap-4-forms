@@ -28,14 +28,14 @@ class FormService {
      *
      * @var array
      */
-    private $_allowedRenders = ['open', 'close', 'file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset', 'fieldsetOpen', 'fieldsetClose'];
+    private $_allowedRenders = ['open', 'close', 'file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'tel', 'hidden', 'select', 'checkbox', 'radio', 'textarea', 'button', 'submit', 'anchor', 'reset', 'fieldsetOpen', 'fieldsetClose'];
 
     /**
      * Allowed renders for indexing
      *
      * @var array
      */
-    private $_allowedIndexRenders = ['file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'hidden', 'checkbox', 'textarea'];
+    private $_allowedIndexRenders = ['file', 'text', 'plainText', 'range', 'password', 'email', 'number', 'tel', 'hidden', 'checkbox', 'textarea'];
 
     /**
      * Create a new FormSevice instance
@@ -367,6 +367,19 @@ class FormService {
     }
 
     /**
+     * Create a range input
+     *
+     * @param string $name
+     * @param string $label
+     * @param string $default
+     * @return \NetoJose\Bootstrap4Forms\FormService
+     */
+    public function range(string $name = null, $label = null, string $default = null): FormService
+    {
+        return $this->type('range')->name($name)->label($label)->value($default);
+    }
+
+    /**
      * Create a password input
      *
      * @param string $name
@@ -406,16 +419,16 @@ class FormService {
     }
 
     /**
-     * Create a range input
+     * Create a tel input
      *
      * @param string $name
      * @param string $label
      * @param string $default
      * @return \NetoJose\Bootstrap4Forms\FormService
      */
-    public function range(string $name = null, $label = null, string $default = null): FormService
-    {
-        return $this->type('range')->name($name)->label($label)->value($default);
+    public function tel(string $name = null, $label = null, string $default = null): FormService {
+
+        return $this->type('tel')->name($name)->label($label)->value($default);
     }
 
     /**

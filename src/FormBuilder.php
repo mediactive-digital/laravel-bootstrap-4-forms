@@ -482,6 +482,16 @@ class FormBuilder {
     }
 
     /**
+     * Return a tel input tag
+     *
+     * @return string
+     */
+    public function tel(): string {
+        
+        return $this->_renderInput();
+    }
+
+    /**
      * Return a hidden input tag
      *
      * @return string

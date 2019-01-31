@@ -209,17 +209,16 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 {!!Form::radio('orange', 'Orange')!!}
 ```
 
-#### Range inputs
+#### File inputs
 
 | Param    | Type   | Default | Description   |
 | -------- | ------ | ------- | ------------- |
 | $name    | string | null    | Input name    |
 | $label   | string | null    | Input label   |
-| $default | string | null    | Default value |
 
 ```php
 // Example
-{!!Form::range('name', 'User name')!!}
+{!!Form::file('name', 'File name')!!}
 ```
 
 #### Plain text inputs
@@ -233,6 +232,71 @@ If you is using Laravel 5.5, the auto discovery feature will make everything for
 ```php
 // Example
 {!!Form::plainText('name', 'User name')!!}
+```
+
+#### Range inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::range('name', 'Range')!!}
+```
+
+#### Password inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::password('name', 'Password')!!}
+```
+
+#### Email inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::email('name', 'Email')!!}
+```
+
+#### Number inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::email('name', 'Number')!!}
+```
+
+#### Tel inputs
+
+| Param    | Type   | Default | Description   |
+| -------- | ------ | ------- | ------------- |
+| $name    | string | null    | Input name    |
+| $label   | string | null    | Input label   |
+| $default | string | null    | Default value |
+
+```php
+// Example
+{!!Form::email('name', 'Tel')!!}
 ```
 
 ##### Hidden
